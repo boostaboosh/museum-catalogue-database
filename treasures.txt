@@ -1,0 +1,11 @@
+1124	Balance	balance.gif
+7634	Farm machine	farm_machine.jpg
+287	Forklift truck	forklift.jpg
+4343	Globe	globe.jpg
+4455	Lock	lock.jpg
+864	Plaque	plaque.jpg
+46803	Radio	radio.jpg
+421	Ring	ring.jpg
+999	Telephone	telephone.png
+232323	Tops	tops.jpg
+1111	Trophy	trophy.jpg
