@@ -37,7 +37,6 @@
 
 */
 
-import javax.naming.PartialResultException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -57,21 +56,15 @@ class DataStore
 
     // No constructor needed here: all the initialization is in the declarations above
 
-    // Read data from data.txt, split up each line and store the data in the arrays.
+    // Read data from treasures.txt, split up each line and store the data in the arrays.
     // If any ill formatted data, or other file problem is encountered,
     // the reading is abandoned, but storing all correctly read data up to that point.
     public void readData() {
 
-        numberOfEntries = 0;   // Empty current data storage by adjusting the top index.
+        numberOfEntries = 0;   // Empty current data storage by adjusting the index.
         try {
             BufferedReader input = new BufferedReader(new FileReader("treasures.txt"));
             String dataLine;  // To receive each line from the file
-
-            /*
-            //adding a counter so i can add the image filenames to their array
-            //int counter = 0;
-            actually I don't need this because i use the addEntry method
-            */
 
             while ((dataLine = input.readLine()) != null) {  // Get next line from file
 
@@ -191,39 +184,6 @@ class DataStore
         numberOfEntries++;                        // Adjust pointer to next free space
     } // addEntry
 
-    // Search for the given text in the texts array,
-    // and return the corresponding number, or 0 if not found.
-    // (0 is not a clever way to deal with "not found" but it will do for now!)
-    public int lookupNumber(String text) {
-
-        // Scan all the entries
-        for (int i = 0; i < numberOfEntries; i++)
-
-            if (text.equals(artifactNames[i]))   // Check next text
-                // Found the required entry! Return the corresponding number
-                return artifactIDs[i];
-
-        // Execution will only arrive here if didn't find the required entry
-        return 0;
-
-    } // lookupNumber
-
-    // Search for the given text in the texts array,
-    // and double the corresponding number, or no action if not found
-    public void doubleNumber(String text) {
-
-        // Scan all the entries
-        for (int i = 0; i < numberOfEntries; i++)
-
-            if (text.equals(artifactNames[i])) {   // Check next text
-                // Found it, so double the number
-                artifactIDs[i] = 2* artifactIDs[i];
-                // And leave the loop and method immediately because the work is done!
-                return;
-            }
-
-    } // doubleNumbers
-
     // Fill up the given choiceList with the contents of the texts array
     public void fillStringChoice(JComboBox choiceList, String[] array)
     {
@@ -287,12 +247,6 @@ class DataStore
         }
     }
 
-    // Set the appropriate text array position with the new description
-    public void setDescription(int i, String desc){
-        artifactNames[i] = desc;
-    }
-
-
     // Search for the given text in the texts array,
     // and return the corresponding file name, or an empty string if not found.
     public String lookupImage(String artifactName) {
@@ -306,12 +260,11 @@ class DataStore
     }
         // Execution will only arrive here if didn't find the required entry
         return ("");
-
     } // lookupImage
 
     public void filter (JComboBox floorParameter, JComboBox roomParameter, JComboBox resultsList)
     {
-        if ( (floorParameter.getSelectedItem() != null) && (roomParameter.getSelectedItem() != null)) {
+        if ((floorParameter.getSelectedItem() != null) && (roomParameter.getSelectedItem() != null)) {
 
             resultsList.removeAllItems();
 
@@ -335,6 +288,19 @@ class DataStore
             }
         }
     }
+
+    /*
+    public void StringArrayInJLIst(String[] stringArray, int arrayCounter, JList choiceList)
+    {
+        //do stuff
+        DefaultListModel resultsListModel = reslultsList.getModel(); //error, this doesn't make work/make sense
+        for (int i = 0; i < arrayCounter; i++)
+        {
+            resultsListModel.addElement(stringArray[i]);
+        }
+        choiceList.setModel(resultsListModel);
+    }
+    */
 
     public void stringArrayInJComboBox (String[] stringArray, int arrayCounter, JComboBox choiceList)
     {

@@ -1,12 +1,14 @@
+46803	Radio	radio.jpg	0	b
+4343	Globe	globe.jpg	0	c
 1124	Balance	balance.gif	1	b
 7634	Farm machine	farm_machine.jpg	2	b
 287	Forklift truck	forklift.jpg	0	a
-4343	Globe	globe.jpg	0	c
 4455	Lock	lock.jpg	2	a
 864	Plaque	plaque.jpg	1	a
-46803	Radio	radio.jpg	0	b
 421	Ring	ring.jpg	1	b
 999	Telephone	telephone.png	0	b
 232323	Tops	tops.jpg	1	a
 1111	Trophy	trophy.jpg	1	a
-1400	fontana di Trevi	fontana di Trevi.jpg	0	garden
+1504	David	david di Michelangelo.jpg	0	a
+3241	rando bumbo	fontana di Trevi.jpg	2	a
+94509	david lloyd george statue	bpp.jpeg	1	b
