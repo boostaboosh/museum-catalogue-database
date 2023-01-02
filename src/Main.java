@@ -18,9 +18,9 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 
 public class Main
         extends JFrame
@@ -33,8 +33,8 @@ public class Main
         Main window = new Main();
         //window.setSize(300,200);       // Width, height of window
         //window.pack();
-        window.setSize(1000,500);
-        window.setLocation(0,00);   // Where on the screen
+        window.setSize(950,500);
+        window.setLocation(0,0);   // Where on the screen
         window.setVisible(true);
 
     } // main
@@ -42,7 +42,7 @@ public class Main
     // Constructor
     public Main() {
 
-        setTitle("checkpoint 3");
+        setTitle("checkpoint 6");
         setDefaultCloseOperation(EXIT_ON_CLOSE);   // For main close box click event
         init();                                    // Set up the GUI and data
 
@@ -53,7 +53,7 @@ public class Main
     //adding tabbed panels
     private JTabbedPane tabbedPane = new JTabbedPane(); //this will contain the switchable panels
     private JPanel
-            filterAndPrintPanel, editTreasuresPanel, imagePanel;
+            filterAndPrintPanel, addNewArtifactPanel, editArtifactsPanel, imagePanel;
 
     //filterAndPrintPanel GUI stuff
     private JButton printFilterButton = new JButton("Print Selection");
@@ -63,13 +63,39 @@ public class Main
     private JLabel artifactImage = new JLabel();
 
     //editTreasuresPanel GUI stuff
+    private JLabel IDLabel = new JLabel("ID"),
+        artifactNameLabel = new JLabel("artifact name"),
+        artifactImageFileLabel = new JLabel("artifact image file"),
+        artifactFloorNumberLabel = new JLabel("artifact floor number"),
+        artifactRoomLetterLabel = new JLabel("artifact room letter");
+
+    /*
+    private JComboBox floorSelection = new JComboBox(),
+        roomSelection = new JComboBox(),
+        artifactSelection = new JComboBox(),
+        roomSelection = new JComboBox(),
+        artifactSelection = new JComboBox();
+    */
+
+    private JTextField artifactIDField = new JTextField(10),
+        artifactNameField = new JTextField(20),
+        //artifactImageFileField = new JTextField(25),
+        artifactFloorNumberField = new JTextField(10),
+        artifactRoomLetterField = new JTextField(10);
+
+    private JButton addNewArtifactButton = new JButton("add new artifact to the treasure set"),
+        addNewArtifactImageFileButton = new JButton("add new artifact image file");
+    File selectedFile;
+
+    //old edit stuff
     private JButton doubleArtifactIDButton = new JButton("Double Artifact ID"), // The buttons for the GUI
             storeNewArtifactIDButton = new JButton("Store Artifact ID"),
             editArtifactNameButton = new JButton("Edit Artifact Name");
 
     private JComboBox<String> artifactChoiceList = new JComboBox<String>();   // For displaying a selectable text list
-    private JTextField artifactIDField = new JTextField(10), // For displaying the number associated with the selected text item
+    private JTextField displayArtifactIDField = new JTextField(10), // For displaying the number associated with the selected text item
             artifactRenameField = new JTextField(10); //description field
+
 
     //imagePanel GUI stuff
     private JLabel imageLabel = new JLabel(); //label for my image inside init()
@@ -82,10 +108,11 @@ public class Main
 
         //Set up the GUI
         Container contentPane = getContentPane();
-        contentPane.setLayout(new FlowLayout());
+        //contentPane.setLayout(new FlowLayout());
 
         //creating the filterPanel
         filterAndPrintPanel = new JPanel();
+        filterAndPrintPanel.setBackground(Color.green);
 
         filterAndPrintPanel.add(printFilterButton);
         printFilterButton.addActionListener(this);
@@ -106,7 +133,105 @@ public class Main
         artifactImage.setIcon(new ImageIcon(theData.lookupImage((String) artifactSelection.getSelectedItem())));
 
         //creating editTreasures panel
-        editTreasuresPanel = new JPanel();
+        addNewArtifactPanel = new JPanel();
+        addNewArtifactPanel.setLayout(new GridBagLayout());
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        //row 1
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(IDLabel, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactNameLabel, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactImageFileLabel, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 3;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactFloorNumberLabel, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 4;
+        constraints.gridy = 0;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactRoomLetterLabel, constraints);
+
+        //row 2
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactIDField, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 1;
+        constraints.gridy = 1;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactNameField, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 2;
+        constraints.gridy = 1;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(addNewArtifactImageFileButton, constraints);
+        addNewArtifactImageFileButton.addActionListener(this);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 3;
+        constraints.gridy = 1;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactFloorNumberField, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx = 4;
+        constraints.gridy = 1;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(artifactRoomLetterField, constraints);
+
+        //row 3
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.ipady = 40;
+        constraints.gridx =0;
+        constraints.gridy = 2;
+        constraints.gridwidth = 5;
+        constraints.weightx = 0.5;
+        constraints.weighty = 0.5;
+        addNewArtifactPanel.add(addNewArtifactButton, constraints);
+        addNewArtifactButton.addActionListener(this);
+
+        /*
         editTreasuresPanel.setBackground(Color.red);
 
         editTreasuresPanel.add(artifactRenameField); //adding the description field
@@ -118,8 +243,8 @@ public class Main
         editTreasuresPanel.add(editArtifactNameButton); //adding edit button
         editArtifactNameButton.addActionListener(this);
 
-        editTreasuresPanel.add(artifactIDField); //adding the number associated with the selected text item field
-        artifactIDField.setEditable(false);
+        editTreasuresPanel.add(displayArtifactIDField); //adding the number associated with the selected text item field
+        displayArtifactIDField.setEditable(false);
 
         editTreasuresPanel.add(doubleArtifactIDButton); //adding the double button
         doubleArtifactIDButton.addActionListener(this);
@@ -130,52 +255,31 @@ public class Main
         // make sure that initial display in numberField
         // is consistent with the initially selected text item
         updateNumberField();
-
-        /*
-        // The buttons notify actionPerformed when clicked
-        contentPane.add(doubleButton);
-        doubleButton.addActionListener(this);
-        contentPane.add(storeButton);
-        storeButton.addActionListener(this);
-
-        // Tell theData to fill up the drop-down JComboBox textChoice with the text items,
-        // add textChoice to the display,
-        // and set it to notify actionPerformed when an item is selected
-        theData.fillChoice(textChoice);
-        contentPane.add(textChoice);
-        textChoice.addActionListener(this);
-
-        // Display numberField, and disable user editing
-        contentPane.add(numberField);
-        numberField.setEditable(false);
-
-        contentPane.add(editButton);
-        editButton.addActionListener(this);
-
-        contentPane.add(descField);
         */
 
+        /*
         //creating the imagePanel
         imagePanel = new JPanel();
-        imagePanel.setBackground(Color.green);
+        imagePanel.setBackground(Color.red);
 
         //giving image label initial image value
         imageLabel.setIcon(new ImageIcon(theData.lookupImage((String) artifactChoiceList.getSelectedItem())));
         //adding image to pane
         imagePanel.add(imageLabel);
+        */
 
 
         //adding the panels to JTabbedPane
         tabbedPane.add("filter and print artifacts", filterAndPrintPanel);
-        tabbedPane.add("edit treasures", editTreasuresPanel);
-        tabbedPane.add("image panel", imagePanel);
+        tabbedPane.add("add new artifact", addNewArtifactPanel);
+        //tabbedPane.add("image panel", imagePanel);
         contentPane.add(tabbedPane);
 
     } // init
 
     // Handle button presses and item selection events
     public void actionPerformed(ActionEvent e) {
-
+        /*
         if (e.getSource() == doubleArtifactIDButton) {
             // Need to double the currently selected integer
             // First find out Which text item is selected
@@ -212,7 +316,7 @@ public class Main
             // (in this example code it is done in both).
             if (artifactChoiceList.getSelectedIndex() == -1) {   // -1 indicates "nothing selected"
                 // No item is currently selected
-                artifactIDField.setText("");
+                displayArtifactIDField.setText("");
             }
             else
             {
@@ -223,6 +327,9 @@ public class Main
                 imageLabel.setIcon(new ImageIcon(theData.lookupImage((String) artifactChoiceList.getSelectedItem())));
             }
         }
+        */
+
+        //filter and print artifacts stuff
         if (e.getSource() == floorSelection)
         {
             //update filter
@@ -244,6 +351,41 @@ public class Main
             theData.printFilterSelection(floorSelection, roomSelection, artifactSelection, artifactImage);
         }
 
+        //edit treasures stuff
+        if (e.getSource() == addNewArtifactImageFileButton)
+        {
+            JFileChooser chooser = new JFileChooser();
+            if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                System.out.println("You chose this file: " + chooser.getSelectedFile().getName());
+
+                selectedFile = chooser.getSelectedFile();
+            }
+
+            /*
+            JFileChooser chooser = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "JPG & GIF Images", "jpg", "gif");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(parent);
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                System.out.println("You chose to open this file: " +
+                        chooser.getSelectedFile().getName());
+            }
+            */
+        }
+
+        if (e.getSource() == addNewArtifactButton)
+        {
+            //add new artifact to treasures dataset
+            theData.addNewArtifact(artifactIDField.getText(), artifactNameField.getText(), selectedFile, artifactFloorNumberField.getText(), artifactRoomLetterField.getText());
+
+            theData.fillIntChoice(floorSelection, theData.artifactFloorNumbers);
+
+            theData.fillStringChoice(roomSelection, theData.artifactRooms);
+
+            theData.filter(floorSelection, roomSelection, artifactSelection);
+        }
+
     } // actionPerformed
 
     // Display the correct integer from the data store in numberField
@@ -254,13 +396,13 @@ public class Main
         // First find out which text item is selected
         String chosen = (String) artifactChoiceList.getSelectedItem();   // Will be null if nothing selected
         if (chosen == null) {
-            artifactIDField.setText("");
+            displayArtifactIDField.setText("");
         }
         else {
             // Then ask theData to look up the chosen text in its data store, and to return the associated number
             int theNumber = theData.lookupNumber(chosen);
             // Finally display the number in the number field
-            artifactIDField.setText(Integer.toString(theNumber));
+            displayArtifactIDField.setText(Integer.toString(theNumber));
         }
 
     } // updateNumberField

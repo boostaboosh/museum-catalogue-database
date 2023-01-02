@@ -1,4 +1,4 @@
-8992	Balance	balance.gif	1	b
+1124	Balance	balance.gif	1	b
 7634	Farm machine	farm_machine.jpg	2	b
 287	Forklift truck	forklift.jpg	0	a
 4343	Globe	globe.jpg	0	c
@@ -9,3 +9,4 @@
 999	Telephone	telephone.png	0	b
 232323	Tops	tops.jpg	1	a
 1111	Trophy	trophy.jpg	1	a
+2000	trevi fountain	fontana di Trevi.jpg	0	z

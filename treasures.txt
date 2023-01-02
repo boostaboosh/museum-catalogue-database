@@ -9,3 +9,4 @@
 999	Telephone	telephone.png	0	b
 232323	Tops	tops.jpg	1	a
 1111	Trophy	trophy.jpg	1	a
+1400	fontana di Trevi	fontana di Trevi.jpg	0	garden

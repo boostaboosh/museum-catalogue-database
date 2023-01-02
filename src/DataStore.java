@@ -37,6 +37,7 @@
 
 */
 
+import javax.naming.PartialResultException;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -47,8 +48,8 @@ class DataStore
     private final int MAX = 50;                          // Used as limit on arrays
 
     //adding arrays for data storage
-    public String[] artifactNames = new String[MAX];
     public int[] artifactIDs = new int[MAX];
+    public String[] artifactNames = new String[MAX];
     public String[] artifactImageFileNames = new String[MAX];
     public int[] artifactFloorNumbers = new int[MAX];
     public String[] artifactRooms = new String[MAX];
@@ -124,7 +125,7 @@ class DataStore
 
                 // We now have the text and number parts,
                 // so store the data obtained as next entry in the arrays
-                addEntry(artifactNamePart, artifactID, imagePart, floor, roomPart);
+                addEntry(artifactID, artifactNamePart, imagePart, floor, roomPart);
 
                 //we also have to add the image file names to their array, and the
                 //artifactImageFileNames[counter] = imagePart;
@@ -144,7 +145,7 @@ class DataStore
     public void writeData() {
 
         try {
-            BufferedWriter output = new BufferedWriter(new FileWriter("data.txt"));
+            BufferedWriter output = new BufferedWriter(new FileWriter("treasures.txt")); //treasures.txt instead of data text file so that new entries show up in filter panel. Scary! don't make mistakes.
 
             // Process each stored text/number pair from 0 to top
             for (int i = 0; i < numberOfEntries; i++) {
@@ -170,15 +171,21 @@ class DataStore
 
     // Add one more text/number entry to the arrays, if there is space.
     // If there is no space left, the new data is simply ignored, with no error report
-    public void addEntry(String text, int n, String imageName, int floor, String room) {
+    public void addEntry(int artifactID, String artifactName, String artifactImageFileName, int artifactFloor, String artifactRoom) {
+        for (int i = 0; i < numberOfEntries; i++){
+            if (artifactID == artifactIDs[i]){
+                JOptionPane.showMessageDialog(null, "error: ID "+artifactID+" is already taken by artifact "+artifactNames[i]+". You cannot have more than 1 entry with the same artifact ID");
+                return;
+            }
+        }
 
         if (numberOfEntries >= MAX) return;     // If array is full don't add data
 
-        artifactIDs[numberOfEntries] = n;       // There is space, so put the data into that space
-        artifactNames[numberOfEntries] = text;
-        artifactImageFileNames[numberOfEntries] = imageName;
-        artifactFloorNumbers[numberOfEntries] = floor;
-        artifactRooms[numberOfEntries] = room;
+        artifactIDs[numberOfEntries] = artifactID;       // There is space, so put the data into that space
+        artifactNames[numberOfEntries] = artifactName;
+        artifactImageFileNames[numberOfEntries] = artifactImageFileName;
+        artifactFloorNumbers[numberOfEntries] = artifactFloor;
+        artifactRooms[numberOfEntries] = artifactRoom;
 
         // and add new items
         numberOfEntries++;                        // Adjust pointer to next free space
@@ -270,6 +277,7 @@ class DataStore
             if (!valueInChoiceList)
             {
                 choiceList.addItem(array[i]);
+                System.out.println("value added:"+array[i]);
             }
         }
 
@@ -287,12 +295,12 @@ class DataStore
 
     // Search for the given text in the texts array,
     // and return the corresponding file name, or an empty string if not found.
-    public String lookupImage(String itemName) {
-    if (itemName != null) {
+    public String lookupImage(String artifactName) {
+    if (artifactName != null) {
     // Scan all the entries
     for (int i = 0; i < numberOfEntries; i++)
 
-        if (itemName.equals(artifactNames[i]))   // Check next item
+        if (artifactName.equals(artifactNames[i]))   // Check next item
             // Found the required entry! Return the corresponding file name
             return artifactImageFileNames[i];
     }
@@ -303,30 +311,28 @@ class DataStore
 
     public void filter (JComboBox floorParameter, JComboBox roomParameter, JComboBox resultsList)
     {
-        resultsList.removeAllItems();
+        if ( (floorParameter.getSelectedItem() != null) && (roomParameter.getSelectedItem() != null)) {
 
-        int floor = (int) floorParameter.getSelectedItem();
-        String room = (String) roomParameter.getSelectedItem();
+            resultsList.removeAllItems();
 
-        String[] artifactResults = new String[MAX];
-        int resultsCounter = 0;
+            int floor = (int) floorParameter.getSelectedItem();
+            String room = (String) roomParameter.getSelectedItem();
 
-        for (int i=0; i<numberOfEntries; i++)
-        {
-            if (artifactFloorNumbers[i] == floor && artifactRooms[i].equals(room))
-            {
-                artifactResults[resultsCounter] = artifactNames[i];
-                resultsCounter++;
+            String[] artifactResults = new String[MAX];
+            int resultsCounter = 0;
+
+            for (int i = 0; i < numberOfEntries; i++) {
+                if (artifactFloorNumbers[i] == floor && artifactRooms[i].equals(room)) {
+                    artifactResults[resultsCounter] = artifactNames[i];
+                    resultsCounter++;
+                }
             }
-        }
 
-        if (resultsCounter == 0)
-        {
-            resultsList.addItem("no results");
-        }
-        else
-        {
-            stringArrayInJComboBox(artifactResults, resultsCounter, resultsList);
+            if (resultsCounter == 0) {
+                resultsList.addItem("no results");
+            } else {
+                stringArrayInJComboBox(artifactResults, resultsCounter, resultsList);
+            }
         }
     }
 
@@ -389,7 +395,7 @@ class DataStore
 
     public String JComboBoxToStringListWithCommas(JComboBox choiceList)
     {
-        //return String containing the items in choiceList seperated by commas
+        //return String containing the items in choiceList separated by commas
         int numberOfItems = choiceList.getItemCount();
 
         String listWithCommas = "";
@@ -409,6 +415,42 @@ class DataStore
         }
 
         return listWithCommas;
+    }
+
+    public void addNewArtifact(String IDField, String artifactNameField, File artifactImageFile, String artifactFloorNumberField, String artifactRoomLetterField)
+    {
+        int newID;
+        String newArtifactName;
+        File newArtifactImageFile;
+        int newArtifactFloorNumber;
+        String newArtifactRoomLetter;
+
+        try{
+            newID = Integer.parseInt(IDField);
+        }
+        catch(NumberFormatException exception)
+        {
+            JOptionPane.showMessageDialog(null, "error: ID must be a whole number!");
+            return;
+        }
+
+        try{
+            newArtifactFloorNumber = Integer.parseInt(artifactFloorNumberField);
+        }
+        catch(NumberFormatException exception)
+        {
+            JOptionPane.showMessageDialog(null, "error: artifact must be a whole number!");
+            return;
+        }
+
+        newArtifactName = artifactNameField;
+        newArtifactImageFile = artifactImageFile;
+        newArtifactRoomLetter = artifactRoomLetterField;
+
+        //adding new artifact data to arrays
+        addEntry(newID, newArtifactName, newArtifactImageFile.getName(), newArtifactFloorNumber, newArtifactRoomLetter);
+        //adding to file
+        writeData();
     }
 
 } // class DataStore
