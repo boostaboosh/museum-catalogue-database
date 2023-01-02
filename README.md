@@ -12,3 +12,5 @@ The key objectives of the application are to store treasure information, be able
 treasures, display the details of treasures, display images of treasures, list all the treasures
 satisfying some criterion (filter functionality), and to be able to print the details for a
 selected treasure.
+
+<img width="416" alt="GUI" src="https://user-images.githubusercontent.com/81049475/210240533-9dc480cf-859d-475a-b13e-efe16e47c3c2.png">
