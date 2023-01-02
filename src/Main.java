@@ -18,7 +18,8 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class Main
         extends JFrame
@@ -49,18 +50,26 @@ public class Main
     private DataStore theData = new DataStore();         // Create a new DataStore object to hold all the data
 
     //adding tabbed panels
-    private JTabbedPane switchable = new JTabbedPane(); //this will contain the switchable panels
+    private JTabbedPane tabbedPane = new JTabbedPane(); //this will contain the switchable panels
     private JPanel
-        editTreasuresPanel, imagePanel;
+        filterPanel, editTreasuresPanel, imagePanel;
 
-    private JButton doubleButton = new JButton("Double"), // The buttons for the GUI
-            storeButton  = new JButton("Store"),
-            editButton = new JButton("Edit");
+    //filterPanel GUI stuff
+    private JComboBox floorSelection = new JComboBox();
+    private JComboBox roomSelection = new JComboBox();
+    private JComboBox artifactSelection = new JComboBox();
+    private JLabel artifactImage = new JLabel();
 
-    private JComboBox<String> textChoice = new JComboBox<String>();   // For displaying a selectable text list
-    private JTextField numberField = new JTextField(10), // For displaying the number associated with the selected text item
-            descField = new JTextField(10); //description field
+    //editTreasuresPanel GUI stuff
+    private JButton doubleArtifactIDButton = new JButton("Double Artifact ID"), // The buttons for the GUI
+            storeNewArtifactIDButton = new JButton("Store Artifact ID"),
+            editArtifactNameButton = new JButton("Edit Artifact Name");
 
+    private JComboBox<String> artifactChoiceList = new JComboBox<String>();   // For displaying a selectable text list
+    private JTextField artifactIDField = new JTextField(10), // For displaying the number associated with the selected text item
+            artifactRenameField = new JTextField(10); //description field
+
+    //imagePanel GUI stuff
     private JLabel imageLabel = new JLabel(); //label for my image inside init()
 
     // Read the data file into the object theData, and set up the GUI
@@ -73,27 +82,45 @@ public class Main
         Container contentPane = getContentPane();
         contentPane.setLayout(new FlowLayout());
 
+        //creating the filterPanel
+        filterPanel = new JPanel();
+
+        theData.fillIntChoice(floorSelection, theData.artifactFloorNumbers);
+        filterPanel.add(floorSelection);
+        floorSelection.addActionListener(this);
+
+        theData.fillStringChoice(roomSelection, theData.artifactRooms);
+        filterPanel.add(roomSelection);
+        roomSelection.addActionListener(this);
+
+        theData.filter(floorSelection, roomSelection, artifactSelection);
+        filterPanel.add(artifactSelection);
+        artifactSelection.addActionListener(this);
+
+        filterPanel.add(artifactImage);
+        artifactImage.setIcon(new ImageIcon(theData.lookupImage((String) artifactSelection.getSelectedItem())));
+
         //creating editTreasures panel
         editTreasuresPanel = new JPanel();
         editTreasuresPanel.setBackground(Color.red);
 
-        editTreasuresPanel.add(doubleButton); //adding the double button
-        doubleButton.addActionListener(this);
+        editTreasuresPanel.add(artifactRenameField); //adding the description field
 
-        editTreasuresPanel.add(storeButton); //adding store button
-        storeButton.addActionListener(this);
+        theData.fillStringChoice(artifactChoiceList, theData.artifactNames); //Tell theData to fill up the drop-down JComboBox textChoice with the text items,
+        editTreasuresPanel.add(artifactChoiceList); //add textChoice to the display,
+        artifactChoiceList.addActionListener(this); //and set it to notify actionPerformed when an item is selected
 
-        editTreasuresPanel.add(editButton); //adding edit button
-        editButton.addActionListener(this);
+        editTreasuresPanel.add(editArtifactNameButton); //adding edit button
+        editArtifactNameButton.addActionListener(this);
 
-        theData.fillChoice(textChoice); //Tell theData to fill up the drop-down JComboBox textChoice with the text items,
-        editTreasuresPanel.add(textChoice); //add textChoice to the display,
-        textChoice.addActionListener(this); //and set it to notify actionPerformed when an item is selected
+        editTreasuresPanel.add(artifactIDField); //adding the number associated with the selected text item field
+        artifactIDField.setEditable(false);
 
-        editTreasuresPanel.add(numberField); //adding the number associated with the selected text item field
-        numberField.setEditable(false);
+        editTreasuresPanel.add(doubleArtifactIDButton); //adding the double button
+        doubleArtifactIDButton.addActionListener(this);
 
-        editTreasuresPanel.add(descField); //adding the description field
+        editTreasuresPanel.add(storeNewArtifactIDButton); //adding store button
+        storeNewArtifactIDButton.addActionListener(this);
 
         // make sure that initial display in numberField
         // is consistent with the initially selected text item
@@ -125,47 +152,48 @@ public class Main
 
         //creating the imagePanel
         imagePanel = new JPanel();
-        editTreasuresPanel.setBackground(Color.green);
+        imagePanel.setBackground(Color.green);
 
         //giving image label initial image value
-        imageLabel.setIcon(new ImageIcon(theData.lookupImage((String)textChoice.getSelectedItem())));
+        imageLabel.setIcon(new ImageIcon(theData.lookupImage((String) artifactChoiceList.getSelectedItem())));
         //adding image to pane
         imagePanel.add(imageLabel);
 
 
         //adding the panels to JTabbedPane
-        switchable.add("edit treasures", editTreasuresPanel);
-        switchable.add("image panel", imagePanel);
-        contentPane.add(switchable);
+        tabbedPane.add("filter artifacts", filterPanel);
+        tabbedPane.add("edit treasures", editTreasuresPanel);
+        tabbedPane.add("image panel", imagePanel);
+        contentPane.add(tabbedPane);
 
     } // init
 
     // Handle button presses and item selection events
     public void actionPerformed(ActionEvent e) {
 
-        if (e.getSource() == doubleButton) {
+        if (e.getSource() == doubleArtifactIDButton) {
             // Need to double the currently selected integer
             // First find out Which text item is selected
-            String chosen = (String)textChoice.getSelectedItem();
+            String chosen = (String) artifactChoiceList.getSelectedItem();
             // Now tell theData to find chosen in its data store and to double the number associated with it
             theData.doubleNumber(chosen);
             // Finally update the number field display
             updateNumberField();
         }
-        if (e.getSource() == storeButton)
+        if (e.getSource() == storeNewArtifactIDButton)
             // Tell theData to write its contents back to the file
             theData.writeData();
-        if (e.getSource() == editButton) {
+        if (e.getSource() == editArtifactNameButton) {
             // Replaces the selection of the combo box with the new description
-            textChoice.insertItemAt(descField.getText(), textChoice.getSelectedIndex());
-            textChoice.removeItemAt(textChoice.getSelectedIndex());
-            textChoice.setSelectedIndex(textChoice.getSelectedIndex());
-            theData.setDescription(textChoice.getSelectedIndex(), descField.getText());
+            artifactChoiceList.insertItemAt(artifactRenameField.getText(), artifactChoiceList.getSelectedIndex());
+            artifactChoiceList.removeItemAt(artifactChoiceList.getSelectedIndex());
+            artifactChoiceList.setSelectedIndex(artifactChoiceList.getSelectedIndex());
+            theData.setDescription(artifactChoiceList.getSelectedIndex(), artifactRenameField.getText());
             // Empties text field and updates number field
-            descField.setText("");
+            artifactRenameField.setText("");
             updateNumberField();
         }
-        if (e.getSource() == textChoice) {
+        if (e.getSource() == artifactChoiceList) {
             // Handle an event from the combo box list: it might be an item
             // selection, or deselection or some other change to the combo box.
             // Note: Deselection occurs when changing changing a selection, or
@@ -177,9 +205,9 @@ public class Main
             // with the new currently selected text, or set to blank if nothing is selected.
             // The check for "nothing selected" can be done here, or in updateNumberField
             // (in this example code it is done in both).
-            if (textChoice.getSelectedIndex() == -1) {   // -1 indicates "nothing selected"
+            if (artifactChoiceList.getSelectedIndex() == -1) {   // -1 indicates "nothing selected"
                 // No item is currently selected
-                numberField.setText("");
+                artifactIDField.setText("");
             }
             else
             {
@@ -187,8 +215,23 @@ public class Main
                 updateNumberField();
 
                 //updating the imageLabel to display the image
-                imageLabel.setIcon(new ImageIcon(theData.lookupImage((String)textChoice.getSelectedItem())));
+                imageLabel.setIcon(new ImageIcon(theData.lookupImage((String) artifactChoiceList.getSelectedItem())));
             }
+        }
+        if (e.getSource() == floorSelection)
+        {
+            //update filter
+            theData.filter(floorSelection, roomSelection, artifactSelection);
+        }
+        if (e.getSource() == roomSelection)
+        {
+            //update filter
+            theData.filter(floorSelection, roomSelection, artifactSelection);
+        }
+        if (e.getSource() == artifactSelection)
+        {
+            //update output
+            artifactImage.setIcon(new ImageIcon(theData.lookupImage((String) artifactSelection.getSelectedItem())));
         }
 
     } // actionPerformed
@@ -199,15 +242,15 @@ public class Main
     private void updateNumberField() {
 
         // First find out which text item is selected
-        String chosen = (String)textChoice.getSelectedItem();   // Will be null if nothing selected
+        String chosen = (String) artifactChoiceList.getSelectedItem();   // Will be null if nothing selected
         if (chosen == null) {
-            numberField.setText("");
+            artifactIDField.setText("");
         }
         else {
             // Then ask theData to look up the chosen text in its data store, and to return the associated number
             int theNumber = theData.lookupNumber(chosen);
             // Finally display the number in the number field
-            numberField.setText(Integer.toString(theNumber));
+            artifactIDField.setText(Integer.toString(theNumber));
         }
 
     } // updateNumberField

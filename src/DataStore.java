@@ -44,10 +44,13 @@ class DataStore {
 
     private final int MAX = 50;                          // Used as limit on arrays
 
-    private String[] texts = new String[MAX];            // Two arrays for data storage
-    private int[] numbers = new int[MAX];
-    private String[] imageFileNames = new String[MAX];         //and another array for the file names
-    private int top = -1;                                // Entries indexed 0..top of the arrays are occupied
+    //adding arrays for data storage
+    public String[] artifactNames = new String[MAX];
+    public int[] artifactIDs = new int[MAX];
+    public String[] artifactImageFileNames = new String[MAX];
+    public int[] artifactFloorNumbers = new int[MAX];
+    public String[] artifactRooms = new String[MAX];
+    private int numberOfEntries = 0;                                // Entries indexed 0..top of the arrays are occupied
 
     // No constructor needed here: all the initialization is in the declarations above
 
@@ -56,50 +59,74 @@ class DataStore {
     // the reading is abandoned, but storing all correctly read data up to that point.
     public void readData() {
 
-        top = -1;   // Empty current data storage by adjusting the top index.
+        numberOfEntries = 0;   // Empty current data storage by adjusting the top index.
         try {
             BufferedReader input = new BufferedReader(new FileReader("treasures.txt"));
             String dataLine;  // To receive each line from the file
 
+            /*
             //adding a counter so i can add the image filenames to their array
-            int counter = 0;
+            //int counter = 0;
+            actually I don't need this because i use the addEntry method
+            */
+
             while ((dataLine = input.readLine()) != null) {  // Get next line from file
 
                 // Find the position of the *first* tab for splitting the line
-                int tabPos = dataLine.indexOf('\t');
+                int tabPos1 = dataLine.indexOf('\t');
 
-                int secondTabPos = dataLine.indexOf('\t',tabPos+1);
+                int tabPos2 = dataLine.indexOf('\t',tabPos1+1);
+
+                int tabPos3 = dataLine.indexOf('\t',tabPos2+1);
+
+                int tabPos4 = dataLine.indexOf('\t', tabPos3+1);
 
                 // Check, in case no tab was found (indexOf returns -1)
-                if (tabPos < 0) {
+                if (tabPos1 < 0) {
                     System.out.println("No tab in data line");
                     break;                                  // Bad data: read no more!
                 }
 
                 // Split the line: extract the parts of the string up to the tab,
                 // and from after the tab to the end of the string
-                String numberPart = dataLine.substring(0, tabPos);
-                String textPart = dataLine.substring(tabPos+1, secondTabPos);
+                String artifactIDPart = dataLine.substring(0, tabPos1);
+                String artifactNamePart = dataLine.substring(tabPos1+1, tabPos2);
                 //adding the image part
-                String imagePart = dataLine.substring(secondTabPos+1);
+                String imagePart = dataLine.substring(tabPos2+1, tabPos3);
+                //adding the floor part
+                String floorPart = dataLine.substring(tabPos3+1, tabPos4);
+                //adding the room part
+                String roomPart = dataLine.substring(tabPos4+1);
 
-                // Convert numberPart to a proper int for storing
-                int n = 0;   // To hold the converted number
+                // Convert artifactIDPart to a proper int for storing
+                int artifactID = 0;   // To hold the converted number
                 try {
-                    n = Integer.parseInt(numberPart);      // Convert
+                    artifactID = Integer.parseInt(artifactIDPart);      // Convert
                 }
                 catch (NumberFormatException ex) {
                     System.out.println("Bad data in number");
                     break;                                 // Bad data: read no further!
                 }
 
+                //convert floorPart to a proper int for storing
+                int floor = 0;
+                try
+                {
+                    floor = Integer.parseInt(floorPart);
+                }
+                catch (NumberFormatException ex)
+                {
+                    System.out.println("Bad data in number");
+                    break;                                 // Bad data: read no further!
+                }
+
                 // We now have the text and number parts,
                 // so store the data obtained as next entry in the arrays
-                addEntry(textPart, n);
+                addEntry(artifactNamePart, artifactID, imagePart, floor, roomPart);
 
-                //we also have to add the image file names to their array
-                imageFileNames[counter] = imagePart;
-                counter++;
+                //we also have to add the image file names to their array, and the
+                //artifactImageFileNames[counter] = imagePart;
+                //counter++;
 
             }
 
@@ -118,12 +145,13 @@ class DataStore {
             BufferedWriter output = new BufferedWriter(new FileWriter("data.txt"));
 
             // Process each stored text/number pair from 0 to top
-            for (int i = 0; i <= top; i++) {
+            for (int i = 0; i < numberOfEntries; i++) {
 
                 // Build a correctly structured string as an output line:
                 // the two corresponding array items are separated by a tab
-                String theNumber = Integer.toString(numbers[i]);
-                String outputLine = theNumber + "\t" + texts[i];
+                String theArtifactID = Integer.toString(artifactIDs[i]);
+                String theArtifactFloor = Integer.toString(artifactFloorNumbers[i]);
+                String outputLine = theArtifactID + "\t" + artifactNames[i]+ "\t" + artifactImageFileNames[i] + "\t" + theArtifactFloor + "\t" + artifactRooms[i];
                 // And output the line to the file, followed by a new line
                 output.write(outputLine);
                 output.newLine();
@@ -140,15 +168,18 @@ class DataStore {
 
     // Add one more text/number entry to the arrays, if there is space.
     // If there is no space left, the new data is simply ignored, with no error report
-    public void addEntry(String text, int n) {
+    public void addEntry(String text, int n, String imageName, int floor, String room) {
 
-        if (top == MAX-1) return;     // If arrays are full: no addition of data
+        if (numberOfEntries >= MAX) return;     // If array is full don't add data
 
-        // There is space, so add new items
-        top++;                        // Adjust pointer to next free space
-        texts[top] = text;            // and put the data into that space
-        numbers[top] = n;
+        artifactIDs[numberOfEntries] = n;       // There is space, so put the data into that space
+        artifactNames[numberOfEntries] = text;
+        artifactImageFileNames[numberOfEntries] = imageName;
+        artifactFloorNumbers[numberOfEntries] = floor;
+        artifactRooms[numberOfEntries] = room;
 
+        // and add new items
+        numberOfEntries++;                        // Adjust pointer to next free space
     } // addEntry
 
     // Search for the given text in the texts array,
@@ -157,11 +188,11 @@ class DataStore {
     public int lookupNumber(String text) {
 
         // Scan all the entries
-        for (int i = 0; i <= top; i++)
+        for (int i = 0; i < numberOfEntries; i++)
 
-            if (text.equals(texts[i]))   // Check next text
+            if (text.equals(artifactNames[i]))   // Check next text
                 // Found the required entry! Return the corresponding number
-                return numbers[i];
+                return artifactIDs[i];
 
         // Execution will only arrive here if didn't find the required entry
         return 0;
@@ -173,54 +204,142 @@ class DataStore {
     public void doubleNumber(String text) {
 
         // Scan all the entries
-        for (int i = 0; i <= top; i++)
+        for (int i = 0; i < numberOfEntries; i++)
 
-            if (text.equals(texts[i])) {   // Check next text
+            if (text.equals(artifactNames[i])) {   // Check next text
                 // Found it, so double the number
-                numbers[i] = 2*numbers[i];
+                artifactIDs[i] = 2* artifactIDs[i];
                 // And leave the loop and method immediately because the work is done!
                 return;
             }
 
     } // doubleNumbers
 
-    // Fill up the given choice list with the contents of the texts array
-    public void fillChoice(JComboBox<String> list) {
+    // Fill up the given choiceList with the contents of the texts array
+    public void fillStringChoice(JComboBox choiceList, String[] array)
+    {
+        // Empty the current entries in the choiceList
+        choiceList.removeAllItems();
 
-        // Empty the current entries in the list
-        list.removeAllItems();
-        // Step through the occupied part of the array
-        for (int i = 0; i <= top; i++)
-            // Add next text item to the list
-            list.addItem(texts[i]);
+        choiceList.addItem(array[0]);
+        for(int i = 1; i < numberOfEntries;i++)
+        {
+            int occurrences = 0;
+            boolean uniqueBool = true;
+            for (int j = 0; j < i; j++) {
+                if (array[i].equals(array[j]))
+                {
+                    occurrences++;
+                    if (occurrences==1)
+                    {
+                        uniqueBool = false;
+                        break;
+                    }
+                }
+            }
+            if (uniqueBool)
+            {
+                choiceList.addItem(array[i]);
+            }
+        }
 
         // Finally if there is at least one entry, select the first one
-        if (top>=0)
-            list.setSelectedIndex(0);
+        if (numberOfEntries > 0)
+            choiceList.setSelectedIndex(0);
 
-    } // fillChoice
+    } // fillStringChoice
+
+    public void fillIntChoice(JComboBox choiceList, int[] array)
+    {
+        choiceList.removeAllItems();
+
+        for (int i = 0; i < numberOfEntries; i++)
+        {
+            boolean valueInChoiceList = false;
+
+            for (int j = 0; j < i; j++)
+            {
+                if (array[i] == array[j])
+                {
+                    valueInChoiceList = true;
+                    break;
+                }
+            }
+            if (!valueInChoiceList)
+            {
+                choiceList.addItem(array[i]);
+            }
+        }
+
+        // selects the first item in the combobox list to be the selected item when we run the program
+        if (numberOfEntries > 0) {
+            choiceList.setSelectedIndex(0);
+        }
+    }
 
     // Set the appropriate text array position with the new description
     public void setDescription(int i, String desc){
-        texts[i] = desc;
+        artifactNames[i] = desc;
     }
 
 
     // Search for the given text in the texts array,
     // and return the corresponding file name, or an empty string if not found.
     public String lookupImage(String itemName) {
+    if (itemName != null) {
+    // Scan all the entries
+    for (int i = 0; i < numberOfEntries; i++)
 
-        // Scan all the entries
-        for (int i = 0; i <= top; i++)
-
-            if (itemName.equals(texts[i]))   // Check next item
-                // Found the required entry! Return the corresponding file name
-                return imageFileNames[i];
-
+        if (itemName.equals(artifactNames[i]))   // Check next item
+            // Found the required entry! Return the corresponding file name
+            return artifactImageFileNames[i];
+    }
         // Execution will only arrive here if didn't find the required entry
         return ("");
 
     } // lookupImage
+
+    public void filter (JComboBox floorParameter, JComboBox roomParameter, JComboBox resultsList)
+    {
+        resultsList.removeAllItems();
+
+        int floor = (int) floorParameter.getSelectedItem();
+        String room = (String) roomParameter.getSelectedItem();
+
+        String[] artifactResults = new String[MAX];
+        int resultsCounter = 0;
+
+        for (int i=0; i<numberOfEntries; i++)
+        {
+            if (artifactFloorNumbers[i] == floor && artifactRooms[i].equals(room))
+            {
+                artifactResults[resultsCounter] = artifactNames[i];
+                resultsCounter++;
+            }
+        }
+
+        if (resultsCounter == 0)
+        {
+            resultsList.addItem("no results");
+        }
+        else
+        {
+            stringArrayInJComboBox(artifactResults, resultsCounter, resultsList);
+        }
+    }
+
+    public void stringArrayInJComboBox (String[] stringArray, int arrayCounter, JComboBox choiceList)
+    {
+        for (int i = 0; i<arrayCounter; i++)
+        {
+            choiceList.addItem(stringArray[i]);
+        }
+
+        // selects the first item in the combobox list to be the selected item when we run the program
+        if (arrayCounter > 0) {
+            choiceList.setSelectedIndex(0);
+        }
+    }
 
 
 } // class DataStore
