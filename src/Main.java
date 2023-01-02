@@ -18,8 +18,9 @@
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+//import java.awt.event.ActionEvent;
+//import java.awt.event.ActionListener;
 
 public class Main
         extends JFrame
@@ -32,7 +33,7 @@ public class Main
         Main window = new Main();
         //window.setSize(300,200);       // Width, height of window
         //window.pack();
-        window.setSize(1000,1000);
+        window.setSize(1000,500);
         window.setLocation(0,00);   // Where on the screen
         window.setVisible(true);
 
@@ -52,9 +53,10 @@ public class Main
     //adding tabbed panels
     private JTabbedPane tabbedPane = new JTabbedPane(); //this will contain the switchable panels
     private JPanel
-        filterPanel, editTreasuresPanel, imagePanel;
+            filterAndPrintPanel, editTreasuresPanel, imagePanel;
 
-    //filterPanel GUI stuff
+    //filterAndPrintPanel GUI stuff
+    private JButton printFilterButton = new JButton("Print Selection");
     private JComboBox floorSelection = new JComboBox();
     private JComboBox roomSelection = new JComboBox();
     private JComboBox artifactSelection = new JComboBox();
@@ -83,21 +85,24 @@ public class Main
         contentPane.setLayout(new FlowLayout());
 
         //creating the filterPanel
-        filterPanel = new JPanel();
+        filterAndPrintPanel = new JPanel();
+
+        filterAndPrintPanel.add(printFilterButton);
+        printFilterButton.addActionListener(this);
 
         theData.fillIntChoice(floorSelection, theData.artifactFloorNumbers);
-        filterPanel.add(floorSelection);
+        filterAndPrintPanel.add(floorSelection);
         floorSelection.addActionListener(this);
 
         theData.fillStringChoice(roomSelection, theData.artifactRooms);
-        filterPanel.add(roomSelection);
+        filterAndPrintPanel.add(roomSelection);
         roomSelection.addActionListener(this);
 
         theData.filter(floorSelection, roomSelection, artifactSelection);
-        filterPanel.add(artifactSelection);
+        filterAndPrintPanel.add(artifactSelection);
         artifactSelection.addActionListener(this);
 
-        filterPanel.add(artifactImage);
+        filterAndPrintPanel.add(artifactImage);
         artifactImage.setIcon(new ImageIcon(theData.lookupImage((String) artifactSelection.getSelectedItem())));
 
         //creating editTreasures panel
@@ -161,7 +166,7 @@ public class Main
 
 
         //adding the panels to JTabbedPane
-        tabbedPane.add("filter artifacts", filterPanel);
+        tabbedPane.add("filter and print artifacts", filterAndPrintPanel);
         tabbedPane.add("edit treasures", editTreasuresPanel);
         tabbedPane.add("image panel", imagePanel);
         contentPane.add(tabbedPane);
@@ -232,6 +237,11 @@ public class Main
         {
             //update output
             artifactImage.setIcon(new ImageIcon(theData.lookupImage((String) artifactSelection.getSelectedItem())));
+        }
+        if (e.getSource() == printFilterButton)
+        {
+            //print selected floor, rooms on said floor, and the image of the selected item
+            theData.printFilterSelection(floorSelection, roomSelection, artifactSelection, artifactImage);
         }
 
     } // actionPerformed

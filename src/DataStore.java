@@ -38,9 +38,11 @@
 */
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.*;
 
-class DataStore {
+class DataStore
+    extends JFrame{
 
     private final int MAX = 50;                          // Used as limit on arrays
 
@@ -341,6 +343,73 @@ class DataStore {
         }
     }
 
+    public void printFilterSelection (JComboBox floorSelection, JComboBox roomSelection, JComboBox artifactSelection, JLabel imageSelection)
+    {
+        int floorNumber = (int) floorSelection.getSelectedItem();
+        String roomLetter = (String) roomSelection.getSelectedItem();
+        String artifactName = (String) artifactSelection.getSelectedItem();
+        Icon artifactImage = imageSelection.getIcon();
+
+        //print stuff
+        //print available and selected floors, rooms, and artifacts.
+
+        PrintJob printFilterSelectionJob = getToolkit().getPrintJob(this,"Print Filter Selection",null); // This causes the print dialog box to pop up
+        if (printFilterSelectionJob == null) {                                     // Was the print cancelled?
+            return;                                          // If it was, just do nothing
+        }
+        Graphics g = printFilterSelectionJob.getGraphics();                        // Grab a page to draw ("print") on
+        g.translate(50,50);                                  // To move the printing away from top left corner of page
+
+        //Starting x and y of "paint brush"
+        int brushX = 10;
+        int brushY = 20;
+
+        String[] availableSubjectType = {"floors", "rooms", "artifacts"};
+        JComboBox[] availableSubjects = {floorSelection, roomSelection, artifactSelection};
+
+        String[] selectedSubjectType = {"floor", "room", "artifact"};
+        String[] selectedSubject = {String.valueOf(floorNumber), roomLetter, artifactName};
+
+        for (int i=0; i<(selectedSubject.length); i++)
+        {
+            //available floors/rooms/artifacts
+            g.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            g.drawString("The " + availableSubjectType[i] + " available were: " + JComboBoxToStringListWithCommas(availableSubjects[i]), brushX, brushY);
+            brushY += 30;
+
+            //selected floors/rooms/artifacts
+            g.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g.drawString("The " + selectedSubjectType[i] + " selected was: " + selectedSubject[i], brushX, brushY);
+            brushY += 50;
+        }
+
+        g.dispose();                                         // This actually prints the page
+        printFilterSelectionJob.end();
+    }
+
+    public String JComboBoxToStringListWithCommas(JComboBox choiceList)
+    {
+        //return String containing the items in choiceList seperated by commas
+        int numberOfItems = choiceList.getItemCount();
+
+        String listWithCommas = "";
+
+        for (int i = 0; i < numberOfItems; i++)
+        {
+            listWithCommas += String.valueOf(choiceList.getItemAt(i));
+
+            if (i < (numberOfItems-1))
+            {
+                listWithCommas += ", ";
+            }
+            else
+            {
+                listWithCommas += ".";
+            }
+        }
+
+        return listWithCommas;
+    }
 
 } // class DataStore
 
