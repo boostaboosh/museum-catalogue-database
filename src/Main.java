@@ -20,7 +20,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class FileDemo
+public class Main
         extends JFrame
         implements ActionListener     // For the JButton handling and item selection in the JComboBox
 {
@@ -28,25 +28,30 @@ public class FileDemo
     // Set up the application
     public static void main(String[] args) {
 
-        FileDemo demo = new FileDemo();
-        //demo.setSize(300,200);       // Width, height of window
-        //demo.pack();
-        demo.setSize(1000,1000);
-        demo.setLocation(0,00);   // Where on the screen
-        demo.setVisible(true);
+        Main window = new Main();
+        //window.setSize(300,200);       // Width, height of window
+        //window.pack();
+        window.setSize(1000,1000);
+        window.setLocation(0,00);   // Where on the screen
+        window.setVisible(true);
 
     } // main
 
     // Constructor
-    public FileDemo() {
+    public Main() {
 
-        setTitle("checkpoint 2");
+        setTitle("checkpoint 3");
         setDefaultCloseOperation(EXIT_ON_CLOSE);   // For main close box click event
         init();                                    // Set up the GUI and data
 
     } // FileDemo
 
     private DataStore theData = new DataStore();         // Create a new DataStore object to hold all the data
+
+    //adding tabbed panels
+    private JTabbedPane switchable = new JTabbedPane(); //this will contain the switchable panels
+    private JPanel
+        editTreasuresPanel, imagePanel;
 
     private JButton doubleButton = new JButton("Double"), // The buttons for the GUI
             storeButton  = new JButton("Store"),
@@ -67,6 +72,34 @@ public class FileDemo
         //Set up the GUI
         Container contentPane = getContentPane();
         contentPane.setLayout(new FlowLayout());
+
+        //creating editTreasures panel
+        editTreasuresPanel = new JPanel();
+        editTreasuresPanel.setBackground(Color.red);
+
+        editTreasuresPanel.add(doubleButton); //adding the double button
+        doubleButton.addActionListener(this);
+
+        editTreasuresPanel.add(storeButton); //adding store button
+        storeButton.addActionListener(this);
+
+        editTreasuresPanel.add(editButton); //adding edit button
+        editButton.addActionListener(this);
+
+        theData.fillChoice(textChoice); //Tell theData to fill up the drop-down JComboBox textChoice with the text items,
+        editTreasuresPanel.add(textChoice); //add textChoice to the display,
+        textChoice.addActionListener(this); //and set it to notify actionPerformed when an item is selected
+
+        editTreasuresPanel.add(numberField); //adding the number associated with the selected text item field
+        numberField.setEditable(false);
+
+        editTreasuresPanel.add(descField); //adding the description field
+
+        // make sure that initial display in numberField
+        // is consistent with the initially selected text item
+        updateNumberField();
+
+        /*
         // The buttons notify actionPerformed when clicked
         contentPane.add(doubleButton);
         doubleButton.addActionListener(this);
@@ -88,15 +121,22 @@ public class FileDemo
         editButton.addActionListener(this);
 
         contentPane.add(descField);
+        */
+
+        //creating the imagePanel
+        imagePanel = new JPanel();
+        editTreasuresPanel.setBackground(Color.green);
 
         //giving image label initial image value
         imageLabel.setIcon(new ImageIcon(theData.lookupImage((String)textChoice.getSelectedItem())));
         //adding image to pane
-        contentPane.add(imageLabel);
+        imagePanel.add(imageLabel);
 
-        // Finally, make sure that initial display in numberField
-        // is consistent with the initially selected text item
-        updateNumberField();
+
+        //adding the panels to JTabbedPane
+        switchable.add("edit treasures", editTreasuresPanel);
+        switchable.add("image panel", imagePanel);
+        contentPane.add(switchable);
 
     } // init
 
